@@ -1,0 +1,19 @@
+Function: sphere
+Selection method: fitness_proportional
+num_vars: 3
+bits_per_var: 10
+chromosome_length: 30
+min_vals: [-5.11, -5.11, -5.11]
+max_vals: [5.12, 5.12, 5.12]
+num_runs: 30
+generations: 400
+population_size: 200
+crossover_rate: 0.7
+mutation_rate: 0.001
+
+Best decoded (overall): [0.0, 0.0, 0.0]
+Best chromosome (overall): 0111111111|0111111111|0111111111
+Average best decoded values over 30 runs: [0.00933333 0.01       0.00766667]
+Average best objective value over 30 runs: 0.0020433333333333133
+Reliability (fraction of runs reaching optimum): 0.10
+Average number of generations to reach best solution: 155.73

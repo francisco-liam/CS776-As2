@@ -1,0 +1,19 @@
+Function: step
+Selection method: chc
+num_vars: 5
+bits_per_var: 10
+chromosome_length: 50
+min_vals: [-5.11, -5.11, -5.11, -5.11, -5.11]
+max_vals: [5.12, 5.12, 5.12, 5.12, 5.12]
+num_runs: 30
+generations: 200
+population_size: 100
+crossover_rate: 0.8
+mutation_rate: 0.01
+
+Best decoded (overall): [-5.07, -5.0600000000000005, -5.08, -5.010000000000001, -5.050000000000001]
+Best chromosome (overall): 0000000100|0000000101|0000000011|0000001010|0000000110
+Average best decoded values over 30 runs: [-5.06066667 -5.062      -5.06033333 -5.04866667 -5.055     ]
+Average best objective value over 30 runs: -30.0
+Reliability (fraction of runs reaching optimum): 1.00
+Average number of generations to reach best solution: 32.07

@@ -1,0 +1,19 @@
+Function: step
+Selection method: fitness_proportional
+num_vars: 5
+bits_per_var: 10
+chromosome_length: 50
+min_vals: [-5.11, -5.11, -5.11, -5.11, -5.11]
+max_vals: [5.12, 5.12, 5.12, 5.12, 5.12]
+num_runs: 30
+generations: 300
+population_size: 150
+crossover_rate: 0.8
+mutation_rate: 0.001
+
+Best decoded (overall): [-5.04, -5.0600000000000005, -5.0600000000000005, -5.0200000000000005, -5.08]
+Best chromosome (overall): 0000000111|0000000101|0000000101|0000001001|0000000011
+Average best decoded values over 30 runs: [-5.06866667 -5.05133333 -5.064      -5.07       -5.057     ]
+Average best objective value over 30 runs: -30.0
+Reliability (fraction of runs reaching optimum): 1.00
+Average number of generations to reach best solution: 55.90

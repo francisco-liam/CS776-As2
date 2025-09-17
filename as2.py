@@ -226,76 +226,203 @@ def quartic_fitness(decoded_vals):
     return 1.0 / (val + 1)
 
 if __name__ == "__main__":
-    num_vars = 3
-    bits_per_var = 10
+
+    num_vars = 30
+    bits_per_var = 8
     chromosome_length = num_vars * bits_per_var
-    min_vals = [-5.11] * num_vars
-    max_vals = [5.12] * num_vars
+    min_vals = [-1.27] * num_vars
+    max_vals = [1.28] * num_vars
 
+    # Number of independent GA runs
+    num_runs = 30  # Change as desired
+    generations = 200
+    population_size = 100
+    crossover_rate = 0.8
+    mutation_rate = 0.01
+    selection_method = "chc"  # or "fitness_proportional"
 
-    # Choose which function to use by uncommenting the desired line below:
+    # --- Choose function and label for output naming ---
+    function_name = "quartic"  # Options: "sphere", "rosenbrock", "step", "quartic"
+
     def fitness_fn(chromosome):
         real_vals = decode_chromosome(chromosome, num_vars, bits_per_var, min_vals, max_vals)
-        return sphere_fitness(real_vals)      # De Jong F1 (Sphere)
-        # return rosenbrock_fitness(real_vals)  # De Jong F2 (Rosenbrock)
-        # return step_fitness(real_vals)        # De Jong F3 (Step)
-        # return quartic_fitness(real_vals)     # De Jong F4 (Noisy Quartic)
+        if function_name == "sphere":
+            return sphere_fitness(real_vals)
+        elif function_name == "rosenbrock":
+            return rosenbrock_fitness(real_vals)
+        elif function_name == "step":
+            return step_fitness(real_vals)
+        elif function_name == "quartic":
+            return quartic_fitness(real_vals)
+        else:
+            raise ValueError(f"Unknown function_name: {function_name}")
 
     def obj_fn(chromosome):
         real_vals = decode_chromosome(chromosome, num_vars, bits_per_var, min_vals, max_vals)
-        return sum(x**2 for x in real_vals)      # Sphere
-        # return sum(100 * (real_vals[i+1] - real_vals[i]**2)**2 + (1 - real_vals[i])**2 for i in range(len(real_vals)-1))  # Rosenbrock
-        # return sum(np.floor(x) for x in real_vals)  # Step
-        # return sum((i+1) * (x**4) for i, x in enumerate(real_vals)) + 0  # Quartic (no noise for deterministic plotting)
-
-    # Choose selection method: "fitness_proportional" or "chc"
-    selection_method = "chc"  # or "chc"
-
-    best, fitness_stats, obj_stats = simple_ga(
-        fitness_fn,
-        obj_fn,
-        chromosome_length=chromosome_length,
-        population_size=100,
-        generations=200,
-        crossover_rate=0.7,
-        mutation_rate=0.001,
-        selection_method=selection_method
-    )
+        if function_name == "sphere":
+            return sum(x**2 for x in real_vals)
+        elif function_name == "rosenbrock":
+            return sum(100 * (real_vals[i+1] - real_vals[i]**2)**2 + (1 - real_vals[i])**2 for i in range(len(real_vals)-1))
+        elif function_name == "step":
+            return sum(np.floor(x) for x in real_vals)
+        elif function_name == "quartic":
+            return sum((i+1) * (x**4) for i, x in enumerate(real_vals)) + 0  # No noise for deterministic plotting
+        else:
+            raise ValueError(f"Unknown function_name: {function_name}")
 
 
-    # Print best decoded values
-    print("Best decoded:", decode_chromosome(best, num_vars, bits_per_var, min_vals, max_vals))
+    # Arrays to accumulate stats for averaging
+    fitness_min_runs = []
+    fitness_max_runs = []
+    fitness_avg_runs = []
+    obj_min_runs = []
+    obj_max_runs = []
+    obj_avg_runs = []
 
-    # Print best individual's chromosome, separating variables with '|'
-    # Each variable is bits_per_var long
+    best_overall = None
+    best_fitness = -np.inf
+
+    # For reporting
+    best_decoded_list = []  # List of best decoded values per run
+    best_obj_list = []      # List of best objective values per run
+    best_gen_list = []      # Generation at which best solution was first found
+    reliability_tol = 1e-4  # Tolerance for considering global optimum found
+    global_optimum = 0    # For Sphere function
+    reliability_count = 0
+
+    for run in range(num_runs):
+        np.random.seed(None)  # Use system time or entropy for different seed each run
+        best, fitness_stats, obj_stats = simple_ga(
+            fitness_fn,
+            obj_fn,
+            chromosome_length=chromosome_length,
+            population_size=population_size,
+            generations=generations,
+            crossover_rate=crossover_rate,
+            mutation_rate=mutation_rate,
+            selection_method=selection_method
+        )
+        fitness_min_runs.append(fitness_stats['min'])
+        fitness_max_runs.append(fitness_stats['max'])
+        fitness_avg_runs.append(fitness_stats['avg'])
+        obj_min_runs.append(obj_stats['min'])
+        obj_max_runs.append(obj_stats['max'])
+        obj_avg_runs.append(obj_stats['avg'])
+
+        # Track best overall individual
+        fit = fitness_fn(best)
+        if fit > best_fitness:
+            best_fitness = fit
+            best_overall = best
+
+        # Track best decoded and objective for this run
+        best_decoded = decode_chromosome(best, num_vars, bits_per_var, min_vals, max_vals)
+        best_obj = obj_fn(best)
+        best_decoded_list.append(best_decoded)
+        best_obj_list.append(best_obj)
+
+        # Reliability: did we reach the global optimum (within tol)?
+        if abs(best_obj - global_optimum) <= reliability_tol:
+            reliability_count += 1
+
+        # Find the first generation where min objective reaches the best_obj (within tol)
+        gen_found = None
+        for gen, min_obj in enumerate(obj_stats['min']):
+            if abs(min_obj - best_obj) <= reliability_tol:
+                gen_found = gen
+                break
+        if gen_found is None:
+            gen_found = generations  # Not found, set to max
+        best_gen_list.append(gen_found)
+
+    # Convert to numpy arrays for easy averaging
+    fitness_min_runs = np.array(fitness_min_runs)
+    fitness_max_runs = np.array(fitness_max_runs)
+    fitness_avg_runs = np.array(fitness_avg_runs)
+    obj_min_runs = np.array(obj_min_runs)
+    obj_max_runs = np.array(obj_max_runs)
+    obj_avg_runs = np.array(obj_avg_runs)
+
+    # Compute mean across runs (axis=0 is generation)
+    fitness_min_mean = np.mean(fitness_min_runs, axis=0)
+    fitness_max_mean = np.mean(fitness_max_runs, axis=0)
+    fitness_avg_mean = np.mean(fitness_avg_runs, axis=0)
+    obj_min_mean = np.mean(obj_min_runs, axis=0)
+    obj_max_mean = np.mean(obj_max_runs, axis=0)
+    obj_avg_mean = np.mean(obj_avg_runs, axis=0)
+
+
+
+    # Print and save stats to file
+    best_decoded_overall = decode_chromosome(best_overall, num_vars, bits_per_var, min_vals, max_vals)
     chromo_str = "|".join(
-        "".join(str(bit) for bit in best[i*bits_per_var:(i+1)*bits_per_var])
+        "".join(str(bit) for bit in best_overall[i*bits_per_var:(i+1)*bits_per_var])
         for i in range(num_vars)
     )
-    print("Best chromosome:", chromo_str)
+    avg_best_decoded = np.mean(np.array(best_decoded_list), axis=0)
+    avg_best_obj = np.mean(best_obj_list)
+    reliability = reliability_count / num_runs
+    avg_gens_to_best = np.mean(best_gen_list)
 
-    # Plot and save the min, max, and average fitness per generation
+    # Print to console
+    print("Best decoded (overall):", best_decoded_overall)
+    print("Best chromosome (overall):", chromo_str)
+    print(f"Average best decoded values over {num_runs} runs: {avg_best_decoded}")
+    print(f"Average best objective value over {num_runs} runs: {avg_best_obj}")
+    print(f"Reliability (fraction of runs reaching optimum): {reliability:.2f}")
+    print(f"Average number of generations to reach best solution: {avg_gens_to_best:.2f}")
+
+    # Save stats and parameters to file
+    import os
+    stats_dir = "stats"
+    plots_dir = "plots"
+    os.makedirs(stats_dir, exist_ok=True)
+    os.makedirs(plots_dir, exist_ok=True)
+    stats_filename = os.path.join(stats_dir, f"{function_name}_{selection_method}.txt")
+    with open(stats_filename, "w") as f:
+        f.write(f"Function: {function_name}\n")
+        f.write(f"Selection method: {selection_method}\n")
+        f.write(f"num_vars: {num_vars}\n")
+        f.write(f"bits_per_var: {bits_per_var}\n")
+        f.write(f"chromosome_length: {chromosome_length}\n")
+        f.write(f"min_vals: {min_vals}\n")
+        f.write(f"max_vals: {max_vals}\n")
+        f.write(f"num_runs: {num_runs}\n")
+        f.write(f"generations: {generations}\n")
+        f.write(f"population_size: {population_size}\n")
+        f.write(f"crossover_rate: {crossover_rate}\n")
+        f.write(f"mutation_rate: {mutation_rate}\n")
+        f.write(f"\nBest decoded (overall): {best_decoded_overall}\n")
+        f.write(f"Best chromosome (overall): {chromo_str}\n")
+        f.write(f"Average best decoded values over {num_runs} runs: {avg_best_decoded}\n")
+        f.write(f"Average best objective value over {num_runs} runs: {avg_best_obj}\n")
+        f.write(f"Reliability (fraction of runs reaching optimum): {reliability:.2f}\n")
+        f.write(f"Average number of generations to reach best solution: {avg_gens_to_best:.2f}\n")
+
+    # Plot and save the averaged min, max, and average fitness per generation
     plt.figure()
-    plt.plot(fitness_stats['max'], label="Max Fitness")
-    plt.plot(fitness_stats['avg'], label="Average Fitness")
-    plt.plot(fitness_stats['min'], label="Min Fitness")
+    plt.plot(fitness_max_mean, label="Avg Max Fitness")
+    plt.plot(fitness_avg_mean, label="Avg Average Fitness")
+    plt.plot(fitness_min_mean, label="Avg Min Fitness")
     plt.xlabel("Generation")
     plt.ylabel("Fitness")
-    plt.title("Fitness per Generation")
+    plt.title(f"{function_name.title()} ({selection_method})\nAveraged Fitness per Generation over {num_runs} runs")
     plt.legend()
     plt.tight_layout()
-    plt.savefig("fitness_per_generation.png")
+    fitness_plot_filename = os.path.join(plots_dir, f"{function_name}_{selection_method}_fitness.png")
+    plt.savefig(fitness_plot_filename)
     plt.show()
 
-    # Plot and save the min, max, and average objective value per generation
+    # Plot and save the averaged min, max, and average objective value per generation
     plt.figure()
-    plt.plot(obj_stats['max'], label="Max Objective")
-    plt.plot(obj_stats['avg'], label="Average Objective")
-    plt.plot(obj_stats['min'], label="Min Objective")
+    plt.plot(obj_max_mean, label="Avg Max Objective")
+    plt.plot(obj_avg_mean, label="Avg Average Objective")
+    plt.plot(obj_min_mean, label="Avg Min Objective")
     plt.xlabel("Generation")
     plt.ylabel("Objective Value")
-    plt.title("Objective Value per Generation")
+    plt.title(f"{function_name.title()} ({selection_method})\nAveraged Objective Value per Generation over {num_runs} runs")
     plt.legend()
     plt.tight_layout()
-    plt.savefig("objective_per_generation.png")
+    obj_plot_filename = os.path.join(plots_dir, f"{function_name}_{selection_method}_objective.png")
+    plt.savefig(obj_plot_filename)
     plt.show()

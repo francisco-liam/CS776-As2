@@ -1,0 +1,19 @@
+Function: sphere
+Selection method: chc
+num_vars: 3
+bits_per_var: 10
+chromosome_length: 30
+min_vals: [-5.11, -5.11, -5.11]
+max_vals: [5.12, 5.12, 5.12]
+num_runs: 30
+generations: 200
+population_size: 100
+crossover_rate: 0.8
+mutation_rate: 0.01
+
+Best decoded (overall): [0.0, 0.0, 0.0]
+Best chromosome (overall): 0111111111|0111111111|0111111111
+Average best decoded values over 30 runs: [0.00333333 0.00333333 0.00466667]
+Average best objective value over 30 runs: 0.00011333333333332852
+Reliability (fraction of runs reaching optimum): 0.60
+Average number of generations to reach best solution: 25.07

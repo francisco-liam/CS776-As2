@@ -1,0 +1,14 @@
+Function: step
+Parameters Used:
+  num_vars: 5
+  min_vals: [-5.11, -5.11, -5.11, -5.11, -5.11]
+  max_vals: [5.12, 5.12, 5.12, 5.12, 5.12]
+  step_size: 0.5
+  max_no_improve: 600
+  num_experiments: 30
+  precision: 2
+
+Average best solution: [-5.099      -5.10166667 -5.09933333 -5.10266667 -5.105     ]
+Average best objective value: -30.0
+Std dev of best objective values: 0.0
+Average number of iterations: 1161.0

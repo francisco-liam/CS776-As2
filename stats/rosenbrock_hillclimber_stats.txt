@@ -1,0 +1,14 @@
+Function: rosenbrock
+Parameters Used:
+  num_vars: 2
+  min_vals: [-2.047, -2.047]
+  max_vals: [2.048, 2.048]
+  step_size: 0.005
+  max_no_improve: 100
+  num_experiments: 30
+  precision: 3
+
+Average best solution: [0.99366667 0.98743333]
+Average best objective value: 0.0001829036600000003
+Std dev of best objective values: 0.0004735754215104044
+Average number of iterations: 3869.233333333333

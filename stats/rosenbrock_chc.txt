@@ -1,0 +1,19 @@
+Function: rosenbrock
+Selection method: chc
+num_vars: 2
+bits_per_var: 12
+chromosome_length: 24
+min_vals: [-2.047, -2.047]
+max_vals: [2.048, 2.048]
+num_runs: 30
+generations: 200
+population_size: 100
+crossover_rate: 0.8
+mutation_rate: 0.01
+
+Best decoded (overall): [1.0010000000000008, 1.0020000000000007]
+Best chromosome (overall): 101111101000|101111101001
+Average best decoded values over 30 runs: [0.9559 0.947 ]
+Average best objective value over 30 runs: 0.0355731882566666
+Reliability (fraction of runs reaching optimum): 0.10
+Average number of generations to reach best solution: 59.93

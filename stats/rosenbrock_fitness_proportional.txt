@@ -1,0 +1,19 @@
+Function: rosenbrock
+Selection method: fitness_proportional
+num_vars: 2
+bits_per_var: 12
+chromosome_length: 24
+min_vals: [-2.047, -2.047]
+max_vals: [2.048, 2.048]
+num_runs: 30
+generations: 200
+population_size: 100
+crossover_rate: 0.8
+mutation_rate: 0.001
+
+Best decoded (overall): [0.9760000000000004, 0.9520000000000004]
+Best chromosome (overall): 101111001111|101110110111
+Average best decoded values over 30 runs: [0.85476667 0.8265    ]
+Average best objective value over 30 runs: 0.12436713631666649
+Reliability (fraction of runs reaching optimum): 0.00
+Average number of generations to reach best solution: 69.00

@@ -1,0 +1,14 @@
+Function: sphere
+Parameters Used:
+  num_vars: 3
+  min_vals: [-5.11, -5.11, -5.11]
+  max_vals: [5.12, 5.12, 5.12]
+  step_size: 0.05
+  max_no_improve: 100
+  num_experiments: 30
+  precision: 2
+
+Average best solution: [-0.00166667  0.00066667  0.00066667]
+Average best objective value: 9.666666666666668e-05
+Std dev of best objective values: 4.818944098266988e-05
+Average number of iterations: 670.1333333333333
